@@ -7,6 +7,12 @@ ncpus = multiprocessing.cpu_count()
 print(f"{ncpus} CPUs available")
 
 def get_codeword_with_fixed_hw(H, hw, starting_vector = 0):
+    '''
+    returns the first codeword with fixed hammingweight that comes lexicographically after starting_vector
+
+    H: the public key of a McEliece instance
+    hw: Hammingweight of desired vector
+    '''
     n = H.ncols()
     k = H.nrows()
     if starting_vector == 0:
@@ -57,6 +63,9 @@ def read_L_g_from_file(filename, ff):
     return L, glist
 
 def bitstring(length, nr_ones, index):
+    '''
+    returns the bitstring from the sorted set of bitstrings of given length and given hammingweight with given index
+    '''
     if length == 0:
         return []
     elif index < binomial(length - 1, nr_ones):
@@ -65,12 +74,18 @@ def bitstring(length, nr_ones, index):
         return [1] + bitstring(length - 1, nr_ones - 1, index - binomial(length - 1, nr_ones))
     
 def divide_searchspace(length, nr_ones):
+    '''
+    returns the starting-vectors for parallelizing searching all bitstrings of fixed length and hammingweight
+    '''
     nr_bitstrings = binomial(length, nr_ones)
     interval = nr_bitstrings // ncpus
     starting_indices = [i * interval for i in range(ncpus)]
     return starting_indices
     
 def test_function_parallel_search(H, hw, n, starting_vector, end_vector):
+    '''
+    returns the vector of given hammingweigth that can recover the most positions
+    '''
     nrows = H.nrows()
     ncols = H.ncols()
     flag_complete_break = False
@@ -84,7 +99,7 @@ def test_function_parallel_search(H, hw, n, starting_vector, end_vector):
         vec = VS(Integer(current_vector).digits(base=2, padto=n))
         # check whether the vector is a codeword
         if (H * vec.column()) == zero_vector(GF(2), nrows).column():
-            # get support of vectir
+            # get support of vector
             support = get_support_of_vector(vec)
             
             Hpub_abr_ = H[[i for i in range(nrows)], [j for j in range(ncols) if j in support]]
@@ -173,7 +188,6 @@ def get_support_of_vector(vec):
 result_list = []
 
 def parallel():
-    #freeze_support()
     def log_result(result):
         global result_list
         if result[0] == 0:
