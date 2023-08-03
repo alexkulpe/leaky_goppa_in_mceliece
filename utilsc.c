@@ -3,7 +3,7 @@
 
 
 /*
-gets the lexicographically next integer after x with hammingweith hw(x)
+gets the lexicographically next integer after x with hammingweith hw(x) using Gosper's hack
 if this is higher than limit, then returns 0
 
 */
